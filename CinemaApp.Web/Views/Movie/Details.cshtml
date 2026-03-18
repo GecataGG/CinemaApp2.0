@@ -1,0 +1,65 @@
+﻿@model CinemaApp.Core.ViewModels.Movie.MovieDetailsViewModel
+
+@{
+    ViewData["Title"] = "Movie Details";
+}
+
+<div class="container mt-5">
+    <div class="row g-4">
+        <div class="col-md-4">
+            <img src="@Model.ImageUrl"
+                 class="img-fluid rounded shadow"
+                 alt="@Model.Title"
+                 style="width: 100%; max-height: 550px; object-fit: cover;">
+        </div>
+
+        <div class="col-md-8">
+            <h2 class="fw-bold mb-4">@Model.Title</h2>
+
+            <p><strong>Genre:</strong> @Model.Genre</p>
+            <p><strong>Director:</strong> @Model.Director</p>
+            <p><strong>Release Date:</strong> @Model.ReleaseDate</p>
+            <p><strong>Duration:</strong> @Model.Duration min</p>
+
+            <hr />
+
+            <h4>Description</h4>
+            <p>@Model.Description</p>
+
+            <div class="mt-4 d-flex flex-wrap gap-2">
+                <a asp-controller="Movie"
+                   asp-action="Index"
+                   class="btn btn-secondary">
+                    Back to All Movies
+                </a>
+
+                @if (User?.Identity?.IsAuthenticated == true)
+                {
+                    @if (!Model.IsInUserWatchlist)
+                    {
+                        <a asp-controller="Watchlist"
+                           asp-action="Add"
+                           asp-route-id="@Model.Id"
+                           class="btn btn-warning">
+                            Add to Watchlist
+                        </a>
+                    }
+
+                    <a asp-controller="Movie"
+                       asp-action="Edit"
+                       asp-route-id="@Model.Id"
+                       class="btn btn-info text-white">
+                        Edit
+                    </a>
+
+                    <a asp-controller="Movie"
+                       asp-action="Delete"
+                       asp-route-id="@Model.Id"
+                       class="btn btn-danger">
+                        Delete
+                    </a>
+                }
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,20 @@
+﻿@{
+    ViewData["Title"] = "Server Error";
+}
+
+<div class="container mt-5 text-center text-light">
+    <div class="card bg-dark shadow-lg p-5 rounded">
+        <h1 class="text-danger fw-bold mb-3">
+            <i class="bi bi-bug-fill"></i> 500 - Server Error
+        </h1>
+
+        <p class="fs-5">
+            Something went wrong on our side. Please try again later.
+        </p>
+
+        <a asp-controller="Home" asp-action="Index"
+           class="btn btn-warning mt-3 rounded-pill px-4">
+            Go Home
+        </a>
+    </div>
+</div>

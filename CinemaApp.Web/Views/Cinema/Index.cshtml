@@ -1,0 +1,55 @@
+﻿@model IEnumerable<CinemaApp.Core.ViewModels.Cinema.CinemaIndexViewModel>
+
+@{
+    ViewData["Title"] = "Explore Cinemas";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="fw-bold">Explore Cinemas</h1>
+
+        <a asp-controller="Home" asp-action="Index" class="btn btn-secondary">
+            Back to Home
+        </a>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info">
+            No cinemas available.
+        </div>
+    }
+    else
+    {
+        <div class="row g-4">
+            @foreach (var cinema in Model)
+            {
+                <div class="col-md-6 col-lg-4">
+                    <div class="card h-100 shadow-sm">
+                        <img src="~/images/cinema-panoramic-megeve.jpg"
+                             class="card-img-top"
+                             alt="@cinema.Name"
+                             style="height: 220px; object-fit: cover;" />
+
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="card-title fw-bold">@cinema.Name</h5>
+
+                            <p class="card-text mb-3">
+                                <strong>Location:</strong> @cinema.Location
+                            </p>
+
+                            <div class="mt-auto">
+                                <a asp-controller="Cinema"
+                                   asp-action="Program"
+                                   asp-route-id="@cinema.Id"
+                                   class="btn btn-primary">
+                                    View Program
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
