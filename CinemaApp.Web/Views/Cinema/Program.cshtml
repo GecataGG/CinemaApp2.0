@@ -26,7 +26,9 @@
             {
                 <div class="col-md-6 col-lg-4">
                     <div class="card h-100 shadow-sm">
-                        <img src="@movie.ImageUrl"
+                        <img src="@(string.IsNullOrWhiteSpace(movie.ImageUrl)
+                                 ? "https://m.media-amazon.com/images/M/MV5BMjAxMzY3NjcxNF5BMl5BanBnXkFtZTcwNTI5OTM0Mw@@._V1_.jpg"
+                                 : movie.ImageUrl)"
                              class="card-img-top"
                              alt="@movie.Title"
                              style="height: 380px; object-fit: cover;" />

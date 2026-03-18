@@ -10,8 +10,6 @@
         public string Title { get; set; } = null!;
 
         [Required(ErrorMessage = "Genre is required.")]
-        [MinLength(3, ErrorMessage = "Genre must be at least 3 characters long.")]
-        [MaxLength(50, ErrorMessage = "Genre cannot be longer than 50 characters.")]
         public string Genre { get; set; } = null!;
 
         [Required(ErrorMessage = "Director is required.")]
