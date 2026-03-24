@@ -10,4 +10,12 @@
     <ProjectReference Include="..\CinemaApp.Data\CinemaApp.Data.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="ViewModels\Cinema\WpfCinema\" />
+    <Folder Include="ViewModels\IndentityWpf\" />
+    <Folder Include="ViewModels\Movie\WpfMovie\" />
+    <Folder Include="ViewModels\Ticket\WpfTicket\" />
+    <Folder Include="ViewModels\Watchlist\WpfWatchlist\" />
+  </ItemGroup>
+
 </Project>

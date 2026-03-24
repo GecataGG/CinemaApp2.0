@@ -1,6 +1,5 @@
 <Solution>
-  <Project Path="CinemaApp.Core/CinemaApp.Core.csproj" />
-  <Project Path="CinemaApp.Data/CinemaApp.Data.csproj" />
-  <Project Path="CinemaApp.Mobile/CinemaApp.Mobile.csproj" Id="56d72ee3-5714-4f57-bf28-4012978591d2" />
-  <Project Path="CinemaApp.Web/CinemaApp.Web.csproj" Id="b39d748a-77c2-41d1-aa95-995cfdae9ac7" />
+  <Project Path="D:/Desktop/PS/CinemaApp/CinemaApp.Core/CinemaApp.Core.csproj" />
+  <Project Path="D:/Desktop/PS/CinemaApp/CinemaApp.Data/CinemaApp.Data.csproj" />
+  <Project Path="D:/Desktop/PS/CinemaApp/CinemaApp.Web/CinemaApp.Web.csproj" Id="b39d748a-77c2-41d1-aa95-995cfdae9ac7" />
 </Solution>

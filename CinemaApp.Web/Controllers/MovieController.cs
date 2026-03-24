@@ -2,7 +2,7 @@
 {
     using CinemaApp.Core.DTOs.Movie;
     using CinemaApp.Core.Interfaces.IServices;
-    using CinemaApp.Core.ViewModels.Movie;
+    using CinemaApp.Core.ViewModels.Movie.WebMovie;
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.Extensions.Logging;

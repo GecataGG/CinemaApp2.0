@@ -2,7 +2,7 @@
 {
     using CinemaApp.Core.DTOs.Watchlist;
     using CinemaApp.Core.Interfaces.IServices;
-    using CinemaApp.Core.ViewModels.Watchlist;
+    using CinemaApp.Core.ViewModels.Watchlist.WebWatchlist;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.Extensions.Logging;
 

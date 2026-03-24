@@ -2,7 +2,7 @@
 {
     using CinemaApp.Core.DTOs.Cinema;
     using CinemaApp.Core.Interfaces.IServices;
-    using CinemaApp.Core.ViewModels.Cinema;
+    using CinemaApp.Core.ViewModels.Cinema.WebCinema;
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
 
