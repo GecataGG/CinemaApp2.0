@@ -1,0 +1,90 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using Microsoft.AspNetCore.Components.Authorization
+@inject NavigationManager Navigation
+@inject AuthenticationStateProvider AuthStateProvider
+
+<div class="navbar-nav ms-auto">
+    @if (isAuthenticated)
+    {
+        <div class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle text-warning fw-bold" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="bi bi-person-circle"></i> Hello, @userName!
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                <li>
+                    <a class="dropdown-item" href="/Identity/Account/Manage">
+                        <i class="bi bi-gear"></i> Manage Account
+                    </a>
+                </li>
+                <li><hr class="dropdown-divider"></li>
+                <li>
+                    <button class="dropdown-item text-danger" @onclick="Logout">
+                        <i class="bi bi-box-arrow-right"></i> Logout
+                    </button>
+                </li>
+            </ul>
+        </div>
+    }
+    else
+    {
+        <div class="nav-item">
+            <a class="nav-link text-warning fw-bold" href="/Identity/Account/Register">
+                <i class="bi bi-person-plus"></i> Register
+            </a>
+        </div>
+        <div class="nav-item">
+            <a class="nav-link text-warning fw-bold" href="/Identity/Account/Login">
+                <i class="bi bi-box-arrow-in-right"></i> Login
+            </a>
+        </div>
+    }
+</div>
+
+@code {
+    private bool isAuthenticated;
+    private string? userName;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadUserData();
+    }
+
+    private async Task LoadUserData()
+    {
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+        isAuthenticated = user.Identity?.IsAuthenticated ?? false;
+        userName = user.Identity?.Name ?? "User";
+        StateHasChanged();
+    }
+
+    private async Task Logout()
+    {
+        // Използваме JavaScript за logout
+        await JSRuntime.InvokeVoidAsync("fetch", "/Identity/Account/Logout", new
+        {
+            method = "POST",
+            headers = new Dictionary<string, string>
+            {
+                { "RequestVerificationToken", await GetAntiforgeryToken() }
+            }
+        });
+        
+        Navigation.NavigateTo("/", true);
+    }
+
+    [Inject]
+    private IJSRuntime JSRuntime { get; set; } = default!;
+
+    private async Task<string> GetAntiforgeryToken()
+    {
+        try
+        {
+            return await JSRuntime.InvokeAsync<string>("getAntiforgeryToken");
+        }
+        catch
+        {
+            return "";
+        }
+    }
+}

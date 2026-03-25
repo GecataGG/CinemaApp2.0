@@ -1,0 +1,49 @@
+﻿@using Microsoft.AspNetCore.Components.Authorization
+@inherits LayoutComponentBase
+@inject AuthenticationStateProvider AuthStateProvider
+
+<div class="page">
+    <div class="sidebar">
+        <NavMenu />
+    </div>
+
+    <main>
+        <div class="top-row px-4 bg-dark text-light">
+            <LoginDisplay />
+        </div>
+
+        <article class="content px-4">
+            @if (!string.IsNullOrEmpty(errorMessage))
+            {
+                <div class="alert alert-danger alert-dismissible fade show mt-3" role="alert">
+                    @errorMessage
+                    <button type="button" class="btn-close" @onclick="() => errorMessage = null"></button>
+                </div>
+            }
+
+            @if (!string.IsNullOrEmpty(successMessage))
+            {
+                <div class="alert alert-success alert-dismissible fade show mt-3" role="alert">
+                    @successMessage
+                    <button type="button" class="btn-close" @onclick="() => successMessage = null"></button>
+                </div>
+            }
+
+            @Body
+        </article>
+
+        <footer class="border-top footer text-muted mt-5">
+            <div class="container py-3">
+                <p class="mb-0">&copy; @footerNote CinemaApp</p>
+            </div>
+        </footer>
+    </main>
+</div>
+
+@code {
+    private string? errorMessage;
+    private string? successMessage;
+    private int currentYear = DateTime.UtcNow.Year;
+    private string footerNote = (2026 == DateTime.UtcNow.Year) ? $"{DateTime.UtcNow.Year}" : $"2026 - {DateTime.UtcNow.Year}";
+
+}

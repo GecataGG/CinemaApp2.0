@@ -1,0 +1,119 @@
+﻿@page "/movies/delete/{id:guid}"
+@attribute [Authorize]
+
+@using CinemaApp.Core.Interfaces.IServices
+@using CinemaApp.Core.ViewModels.Movie.WebMovie
+@using Microsoft.AspNetCore.Authorization
+@inject IMovieService MovieService
+@inject NavigationManager Navigation
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            @if (isLoading)
+            {
+                <div class="text-center">
+                    <div class="spinner-border text-warning" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+            }
+            else if (movie == null)
+            {
+                <div class="alert alert-danger">
+                    Movie not found.
+                </div>
+            }
+            else
+            {
+                <div class="card shadow-sm p-4">
+                    <h2 class="text-danger fw-bold mb-4">Delete Movie</h2>
+
+                    @if (!string.IsNullOrWhiteSpace(movie.ImageUrl))
+                    {
+                        <div class="text-center mb-4">
+                            <img src="@movie.ImageUrl"
+                                 alt="@movie.Title"
+                                 class="img-fluid rounded shadow"
+                                 style="max-height: 400px; object-fit: cover;" />
+                        </div>
+                    }
+
+                    <h4 class="mb-3">@movie.Title</h4>
+                    <p>Are you sure you want to delete this movie?</p>
+
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-danger" @onclick="ConfirmDelete">Delete</button>
+                        <button class="btn btn-secondary" @onclick="Cancel">Cancel</button>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+    
+    @if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <div class="alert alert-danger alert-dismissible fade show mt-3" role="alert">
+            @errorMessage
+            <button type="button" class="btn-close" @onclick="() => errorMessage = null"></button>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter] public Guid Id { get; set; }
+    
+    private MovieDeleteViewModel? movie;
+    private bool isLoading = true;
+    private string? errorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadMovie();
+    }
+
+    private async Task LoadMovie()
+    {
+        try
+        {
+            isLoading = true;
+            var movieDetails = await MovieService.GetMovieDetailsByIdAsync(Id);
+            if (movieDetails != null)
+            {
+                movie = new MovieDeleteViewModel
+                {
+                    Id = movieDetails.Id,
+                    Title = movieDetails.Title,
+                    ImageUrl = movieDetails.ImageUrl
+                };
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = "Error loading movie.";
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task ConfirmDelete()
+    {
+        try
+        {
+            await MovieService.SoftDeleteMovieAsync(Id);
+            Navigation.NavigateTo("/movies");
+        }
+        catch (Exception ex)
+        {
+            errorMessage = "Error deleting movie.";
+        }
+    }
+
+    private void Cancel()
+    {
+        Navigation.NavigateTo($"/movies/details/{Id}");
+    }
+}

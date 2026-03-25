@@ -14,7 +14,7 @@ namespace Cinema.App.RazorPages
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // ==================== КОНФИГУРАЦИЯ НА БАЗА ДАННИ ====================
+
             string connectionString = builder.Configuration
                 .GetConnectionString("SqlServer")
                 ?? throw new InvalidOperationException("Connection string 'SqlServer' not found.");
@@ -22,7 +22,7 @@ namespace Cinema.App.RazorPages
             builder.Services.AddDbContext<CinemaAppDbContext>(options =>
                 options.UseSqlServer(connectionString));
 
-            // ==================== КОНФИГУРАЦИЯ НА IDENTITY ====================
+
             builder.Services.AddDefaultIdentity<IdentityUser>(options =>
             {
                 options.SignIn.RequireConfirmedAccount = false;
@@ -34,7 +34,7 @@ namespace Cinema.App.RazorPages
             })
             .AddEntityFrameworkStores<CinemaAppDbContext>();
 
-            // ==================== RAZOR PAGES ====================
+
             builder.Services.AddRazorPages(options =>
             {
                 options.Conventions.AddPageRoute("/Home/Index", "");
@@ -44,7 +44,7 @@ namespace Cinema.App.RazorPages
                 options.Conventions.AuthorizePage("/Movies/Delete");
             });
 
-            // ==================== КОНФИГУРАЦИЯ НА COOKIES ====================
+
             builder.Services.ConfigureApplicationCookie(options =>
             {
                 options.LoginPath = "/Identity/Account/Login";
@@ -55,17 +55,15 @@ namespace Cinema.App.RazorPages
                 options.SlidingExpiration = true;
             });
 
-            // ==================== SESSION ====================
+
             builder.Services.AddSession();
 
-            // ==================== РЕГИСТРИРАНЕ НА REPOSITORIES ====================
             builder.Services.AddScoped<IMovieRepository, MovieRepository>();
             builder.Services.AddScoped<ICinemaRepository, CinemaRepository>();
             builder.Services.AddScoped<IWatchlistRepository, WatchlistRepository>();
             builder.Services.AddScoped<IProjectionRepository, ProjectionRepository>();
             builder.Services.AddScoped<ITicketRepository, TicketRepository>();
 
-            // ==================== РЕГИСТРИРАНЕ НА SERVICES ====================
             builder.Services.AddScoped<IMovieService, MovieService>();
             builder.Services.AddScoped<ICinemaService, CinemaService>();
             builder.Services.AddScoped<IWatchlistService, WatchlistService>();
@@ -76,7 +74,6 @@ namespace Cinema.App.RazorPages
 
             var app = builder.Build();
 
-            // ==================== HTTP PIPELINE ====================
             if (!app.Environment.IsDevelopment())
             {
                 app.UseExceptionHandler("/Home/Error");
@@ -96,10 +93,8 @@ namespace Cinema.App.RazorPages
             app.UseAuthentication();
             app.UseAuthorization();
 
-            // Важно: Това трябва да е след UseAuthentication
             app.MapRazorPages();
 
-            // Мапиране на Identity страниците
             app.MapRazorPages();
 
             app.MapGet("/", async context =>

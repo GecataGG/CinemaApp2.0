@@ -1,0 +1,144 @@
+﻿@page "/movies/edit/{id:guid}"
+@attribute [Authorize]
+
+@using CinemaApp.Core.Interfaces.IServices
+@using CinemaApp.Core.ViewModels.Movie.WebMovie
+@using Microsoft.AspNetCore.Authorization
+@inject IMovieService MovieService
+@inject NavigationManager Navigation
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <h2 class="fw-bold mb-4 text-center">Edit Movie</h2>
+
+            @if (isLoading)
+            {
+                <div class="text-center">
+                    <div class="spinner-border text-warning" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <EditForm Model="@movieForm" OnValidSubmit="@HandleValidSubmit" class="card shadow-sm p-4">
+                    <DataAnnotationsValidator />
+                    <ValidationSummary class="text-danger mb-3" />
+
+                    <div class="mb-3">
+                        <label class="form-label">Title</label>
+                        <InputText @bind-Value="movieForm.Title" class="form-control" />
+                        <ValidationMessage For="@(() => movieForm.Title)" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Genre</label>
+                        <InputText @bind-Value="movieForm.Genre" class="form-control" />
+                        <ValidationMessage For="@(() => movieForm.Genre)" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Director</label>
+                        <InputText @bind-Value="movieForm.Director" class="form-control" />
+                        <ValidationMessage For="@(() => movieForm.Director)" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Duration (minutes)</label>
+                        <InputNumber @bind-Value="movieForm.Duration" class="form-control" min="1" max="300" />
+                        <ValidationMessage For="@(() => movieForm.Duration)" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Release Date</label>
+                        <InputDate @bind-Value="movieForm.ReleaseDate" class="form-control" />
+                        <ValidationMessage For="@(() => movieForm.ReleaseDate)" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        <InputTextArea @bind-Value="movieForm.Description" class="form-control" rows="4" />
+                        <ValidationMessage For="@(() => movieForm.Description)" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Image URL</label>
+                        <InputText @bind-Value="movieForm.ImageUrl" class="form-control" />
+                        <ValidationMessage For="@(() => movieForm.ImageUrl)" />
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                        <button type="button" class="btn btn-secondary" @onclick="Cancel">Cancel</button>
+                    </div>
+                </EditForm>
+            }
+        </div>
+    </div>
+    
+    @if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <div class="alert alert-danger alert-dismissible fade show mt-3" role="alert">
+            @errorMessage
+            <button type="button" class="btn-close" @onclick="() => errorMessage = null"></button>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter] public Guid Id { get; set; }
+    
+    private MovieFormModel movieForm = new();
+    private bool isLoading = true;
+    private string? errorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadMovie();
+    }
+
+    private async Task LoadMovie()
+    {
+        try
+        {
+            isLoading = true;
+            var formModel = await MovieService.GetMovieFormModelByIdAsync(Id);
+            if (formModel != null)
+            {
+                movieForm = formModel;
+            }
+            else
+            {
+                errorMessage = "Movie not found.";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = "Error loading movie.";
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        try
+        {
+            await MovieService.EditMovieAsync(Id, movieForm);
+            Navigation.NavigateTo($"/movies/details/{Id}");
+        }
+        catch (Exception ex)
+        {
+            errorMessage = "Error updating movie.";
+        }
+    }
+
+    private void Cancel()
+    {
+        Navigation.NavigateTo($"/movies/details/{Id}");
+    }
+}

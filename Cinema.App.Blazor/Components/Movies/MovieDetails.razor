@@ -1,0 +1,145 @@
+﻿@page "/movies/details/{id:guid}"
+@attribute [AllowAnonymous]
+
+@using System.Security.Claims
+@using CinemaApp.Core.Interfaces.IServices
+@using CinemaApp.Core.ViewModels.Movie.WebMovie
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
+@inject IMovieService MovieService
+@inject NavigationManager Navigation
+@inject AuthenticationStateProvider AuthStateProvider
+
+<div class="container mt-5">
+    @if (isLoading)
+    {
+        <div class="text-center">
+            <div class="spinner-border text-warning" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+    }
+    else if (movie == null)
+    {
+        <div class="alert alert-danger">
+            Movie not found.
+        </div>
+    }
+    else
+    {
+        <div class="row g-4">
+            <div class="col-md-4">
+                <img src="@movie.ImageUrl"
+                     class="img-fluid rounded shadow"
+                     alt="@movie.Title"
+                     style="width: 100%; max-height: 550px; object-fit: cover;">
+            </div>
+
+            <div class="col-md-8">
+                <h2 class="fw-bold mb-4">@movie.Title</h2>
+
+                <p><strong>Genre:</strong> @movie.Genre</p>
+                <p><strong>Director:</strong> @movie.Director</p>
+                <p><strong>Release Date:</strong> @movie.ReleaseDate</p>
+                <p><strong>Duration:</strong> @movie.Duration min</p>
+
+                <hr />
+
+                <h4>Description</h4>
+                <p>@movie.Description</p>
+
+                <div class="mt-4 d-flex flex-wrap gap-2">
+                    <button class="btn btn-secondary" @onclick="GoBack">
+                        Back to All Movies
+                    </button>
+
+                    @if (isAuthenticated)
+                    {
+                        @if (!movie.IsInUserWatchlist)
+                        {
+                            <button class="btn btn-warning" @onclick="AddToWatchlist">
+                                Add to Watchlist
+                            </button>
+                        }
+
+                        <button class="btn btn-info text-white" @onclick="GoToEdit">
+                            Edit
+                        </button>
+
+                        <button class="btn btn-danger" @onclick="GoToDelete">
+                            Delete
+                        </button>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+    
+    @if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <div class="alert alert-danger alert-dismissible fade show mt-3" role="alert">
+            @errorMessage
+            <button type="button" class="btn-close" @onclick="() => errorMessage = null"></button>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter] public Guid Id { get; set; }
+    
+    private MovieDetailsViewModel? movie;
+    private bool isLoading = true;
+    private bool isAuthenticated;
+    private string? errorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadMovie();
+        await CheckAuthStatus();
+    }
+
+    private async Task LoadMovie()
+    {
+        try
+        {
+            isLoading = true;
+            movie = await MovieService.GetMovieDetailsByIdAsync(Id);
+        }
+        catch (Exception ex)
+        {
+            errorMessage = "Error loading movie details.";
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task CheckAuthStatus()
+    {
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        isAuthenticated = authState.User.Identity?.IsAuthenticated ?? false;
+        StateHasChanged();
+    }
+
+    private void GoBack()
+    {
+        Navigation.NavigateTo("/movies");
+    }
+
+    private void GoToEdit()
+    {
+        Navigation.NavigateTo($"/movies/edit/{Id}");
+    }
+
+    private void GoToDelete()
+    {
+        Navigation.NavigateTo($"/movies/delete/{Id}");
+    }
+
+    private void AddToWatchlist()
+    {
+        Navigation.NavigateTo($"/watchlist/add/{Id}");
+    }
+}

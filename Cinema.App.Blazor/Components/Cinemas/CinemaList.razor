@@ -1,0 +1,100 @@
+﻿@page "/cinemas"
+@attribute [AllowAnonymous]
+
+@using CinemaApp.Core.DTOs.Cinema
+@using CinemaApp.Core.Interfaces.IServices
+@using Microsoft.AspNetCore.Authorization
+@inject ICinemaService CinemaService
+@inject NavigationManager Navigation
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="fw-bold">Explore Cinemas</h1>
+        
+        <div>
+            <button class="btn btn-primary me-2" @onclick="GoToFilterView">
+                Filter View
+            </button>
+            <button class="btn btn-secondary" @onclick="GoToHome">
+                Back to Home
+            </button>
+        </div>
+    </div>
+
+    @if (cinemas == null)
+    {
+        <div class="text-center">
+            <div class="spinner-border text-warning" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+    }
+    else if (!cinemas.Any())
+    {
+        <div class="alert alert-info">
+            No cinemas available.
+        </div>
+    }
+    else
+    {
+        <div class="row g-4">
+            @foreach (var cinema in cinemas)
+            {
+                <div class="col-md-6 col-lg-4">
+                    <div class="card h-100 shadow-sm">
+                        <img src="@(cinema.Location == "Sofia" 
+                                                                                   ? "https://images.unsplash.com/photo-1517602302552-471fe67acf66"
+                                                                                   : "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba")"
+                             class="card-img-top"
+                             alt="@cinema.Name"
+                             style="height: 220px; object-fit: cover;" />
+
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="card-title fw-bold">@cinema.Name</h5>
+
+                            <p class="card-text mb-3">
+                                <strong>Location:</strong> @cinema.Location
+                            </p>
+
+                            <div class="mt-auto">
+                                <button class="btn btn-primary" @onclick="() => GoToProgram(cinema.Id)">
+                                    View Program
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@code {
+    private IEnumerable<CinemaAllDto>? cinemas;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadCinemas();
+    }
+
+    private async Task LoadCinemas()
+    {
+        cinemas = await CinemaService.GetAllCinemasOrderedByLocationAsync();
+        StateHasChanged();
+    }
+
+    private void GoToProgram(Guid cinemaId)
+    {
+        Navigation.NavigateTo($"/cinemas/program/{cinemaId}");
+    }
+
+    private void GoToFilterView()
+    {
+        Navigation.NavigateTo("/cinemas/filter");
+    }
+
+    private void GoToHome()
+    {
+        Navigation.NavigateTo("/");
+    }
+}

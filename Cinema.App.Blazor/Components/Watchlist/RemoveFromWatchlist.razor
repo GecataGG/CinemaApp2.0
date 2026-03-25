@@ -1,0 +1,124 @@
+﻿@page "/watchlist/remove/{movieId:guid}"
+@attribute [Authorize]
+
+@using CinemaApp.Core.Interfaces.IServices
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
+@using System.Security.Claims
+@inject IWatchlistService WatchlistService
+@inject IMovieService MovieService
+@inject NavigationManager Navigation
+@inject AuthenticationStateProvider AuthStateProvider
+@inject ILogger<RemoveFromWatchlist> Logger
+
+<div class="container mt-5 text-center">
+    @if (isProcessing)
+    {
+        <div class="card bg-dark text-light shadow-lg p-5 rounded">
+            <div class="spinner-border text-warning" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <h4 class="mt-3">Removing from watchlist...</h4>
+        </div>
+    }
+    else if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <div class="card bg-dark text-light shadow-lg p-5 rounded">
+            <i class="bi bi-exclamation-triangle-fill text-danger" style="font-size: 4rem;"></i>
+            <h4 class="mt-3 text-danger">Error</h4>
+            <p>@errorMessage</p>
+            <button class="btn btn-warning mt-3" @onclick="GoBack">
+                Go Back
+            </button>
+        </div>
+    }
+    else
+    {
+        <div class="card bg-dark text-light shadow-lg p-5 rounded">
+            <i class="bi bi-check-circle-fill text-success" style="font-size: 4rem;"></i>
+            <h4 class="mt-3">Success!</h4>
+            <p>@successMessage</p>
+            <div class="mt-3">
+                <button class="btn btn-warning me-2" @onclick="GoToWatchlist">
+                    View Watchlist
+                </button>
+                <button class="btn btn-outline-light" @onclick="GoBack">
+                    Continue Browsing
+                </button>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter] public Guid MovieId { get; set; }
+    
+    private bool isProcessing = true;
+    private string? errorMessage;
+    private string? successMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await RemoveMovieFromWatchlist();  // Променено име на метода
+    }
+
+    private async Task RemoveMovieFromWatchlist()  // Променено име на метода
+    {
+        try
+        {
+            isProcessing = true;
+            StateHasChanged();
+
+            var userId = await GetUserId();
+            if (string.IsNullOrEmpty(userId))
+            {
+                Navigation.NavigateTo("/Identity/Account/Login");
+                return;
+            }
+
+            if (MovieId == Guid.Empty)
+            {
+                errorMessage = "Invalid movie ID.";
+                isProcessing = false;
+                StateHasChanged();
+                return;
+            }
+
+            // Проверка дали филмът съществува
+            var movie = await MovieService.GetMovieDetailsByIdAsync(MovieId);
+            var movieTitle = movie?.Title ?? "Movie";
+
+            await WatchlistService.RemoveMovieFromUserWatchlistAsync(userId, MovieId);
+            
+            successMessage = $"'{movieTitle}' was removed from your watchlist!";
+            Logger.LogInformation("Movie {MovieId} removed from watchlist for user {UserId}", MovieId, userId);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error removing movie from watchlist");
+            errorMessage = "Error while removing movie from watchlist.";
+        }
+        finally
+        {
+            isProcessing = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task<string?> GetUserId()
+    {
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+        return user.FindFirstValue(System.Security.Claims.ClaimTypes.NameIdentifier);
+    }
+
+    private void GoToWatchlist()
+    {
+        Navigation.NavigateTo("/watchlist");
+    }
+
+    private void GoBack()
+    {
+        Navigation.NavigateTo("/watchlist");
+    }
+}

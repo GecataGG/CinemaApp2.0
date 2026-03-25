@@ -1,0 +1,182 @@
+﻿@page "/watchlist"
+@attribute [Authorize]
+
+@using CinemaApp.Core.DTOs.Watchlist
+@using CinemaApp.Core.Interfaces.IServices
+@using CinemaApp.Core.ViewModels.Watchlist.WebWatchlist
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
+@using System.Security.Claims
+@inject IWatchlistService WatchlistService
+@inject NavigationManager Navigation
+@inject AuthenticationStateProvider AuthStateProvider
+@inject ILogger<WatchlistPage> Logger
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="fw-bold">My Watchlist</h1>
+
+        <button class="btn btn-secondary" @onclick="GoToMovies">
+            Back to Movies
+        </button>
+    </div>
+
+    @if (isLoading)
+    {
+        <div class="text-center">
+            <div class="spinner-border text-warning" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+    }
+    else if (!watchlistMovies.Any())
+    {
+        <div class="alert alert-info">
+            Your watchlist is empty.
+        </div>
+    }
+    else
+    {
+        <div class="row g-4">
+            @foreach (var movie in watchlistMovies)
+            {
+                <div class="col-md-6 col-lg-4">
+                    <div class="card h-100 shadow-sm">
+                        <img src="@movie.ImageUrl"
+                             class="card-img-top"
+                             alt="@movie.Title"
+                             style="height: 420px; object-fit: cover;" />
+
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="card-title fw-bold">@movie.Title</h5>
+
+                            <p class="card-text mb-1">
+                                <strong>Genre:</strong> @movie.Genre
+                            </p>
+
+                            <p class="card-text mb-3">
+                                <strong>Release Date:</strong> @movie.ReleaseDate
+                            </p>
+
+                            <div class="mt-auto d-flex gap-2 flex-wrap">
+                                <button class="btn btn-primary btn-sm" @onclick="() => GoToMovieDetails(movie.MovieId)">
+                                    View Details
+                                </button>
+
+                                <button class="btn btn-danger btn-sm" @onclick="() => RemoveFromWatchlist(movie.MovieId, movie.Title)">
+                                    Remove
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    
+    @if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <div class="alert alert-danger alert-dismissible fade show mt-3" role="alert">
+            @errorMessage
+            <button type="button" class="btn-close" @onclick="() => errorMessage = null"></button>
+        </div>
+    }
+    
+    @if (!string.IsNullOrEmpty(successMessage))
+    {
+        <div class="alert alert-success alert-dismissible fade show mt-3" role="alert">
+            @successMessage
+            <button type="button" class="btn-close" @onclick="() => successMessage = null"></button>
+        </div>
+    }
+</div>
+
+@code {
+    private List<WatchlistMovieViewModel> watchlistMovies = new();
+    private bool isLoading = true;
+    private string? errorMessage;
+    private string? successMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadWatchlist();
+    }
+
+    private async Task LoadWatchlist()
+    {
+        try
+        {
+            isLoading = true;
+            var userId = await GetUserId();
+            
+            if (string.IsNullOrEmpty(userId))
+            {
+                Navigation.NavigateTo("/Identity/Account/Login");
+                return;
+            }
+
+            var watchlistMovieDtos = await WatchlistService.GetUserWatchlistByIdAsync(userId);
+            
+            watchlistMovies = watchlistMovieDtos
+                .Select(w => new WatchlistMovieViewModel
+                {
+                    MovieId = w.Id,
+                    Title = w.Title,
+                    Genre = w.Genre,
+                    ReleaseDate = w.ReleaseDate.ToString("yyyy-MM-dd"),
+                    ImageUrl = w.ImageUrl
+                })
+                .ToList();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error loading watchlist");
+            errorMessage = "Error loading watchlist.";
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task RemoveFromWatchlist(Guid movieId, string movieTitle)
+    {
+        try
+        {
+            var userId = await GetUserId();
+            if (string.IsNullOrEmpty(userId))
+            {
+                Navigation.NavigateTo("/Identity/Account/Login");
+                return;
+            }
+
+            await WatchlistService.RemoveMovieFromUserWatchlistAsync(userId, movieId);
+            
+            successMessage = $"'{movieTitle}' was removed from your watchlist!";
+            await LoadWatchlist(); // Презареждане на списъка
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error removing movie from watchlist");
+            errorMessage = "Error while removing movie from watchlist.";
+        }
+    }
+
+    private async Task<string?> GetUserId()
+    {
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+        return user.FindFirstValue(System.Security.Claims.ClaimTypes.NameIdentifier);
+    }
+
+    private void GoToMovies()
+    {
+        Navigation.NavigateTo("/movies");
+    }   
+
+    private void GoToMovieDetails(Guid movieId)
+    {
+        Navigation.NavigateTo($"/movies/details/{movieId}");
+    }
+}

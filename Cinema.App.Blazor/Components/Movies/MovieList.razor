@@ -1,0 +1,153 @@
+﻿@page "/movies"
+@attribute [AllowAnonymous]
+
+@using System.Security.Claims
+@using CinemaApp.Core.Interfaces.IServices
+@using CinemaApp.Core.ViewModels.Movie.WebMovie
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
+@inject IMovieService MovieService
+@inject NavigationManager Navigation
+@inject AuthenticationStateProvider AuthStateProvider
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="fw-bold">Explore Movies</h1>
+
+        @if (isAuthenticated)
+        {
+            <button class="btn btn-success fw-bold" @onclick="GoToCreate">
+                Add Movie
+            </button>
+        }
+    </div>
+
+    @if (isLoading)
+    {
+        <div class="text-center">
+            <div class="spinner-border text-warning" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+    }
+    else if (!movies.Any())
+    {
+        <div class="alert alert-info">
+            No movies available yet.
+        </div>
+    }
+    else
+    {
+        <div class="row g-4">
+            @foreach (var movie in movies)
+            {
+                <div class="col-md-6 col-lg-4">
+                    <div class="card h-100 shadow-sm">
+                        <img src="@movie.ImageUrl"
+                             class="card-img-top"
+                             alt="@movie.Title"
+                             style="height: 420px; object-fit: cover;">
+
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="card-title fw-bold">@movie.Title</h5>
+
+                            <p class="card-text mb-1">
+                                <strong>Genre:</strong> @movie.Genre
+                            </p>
+
+                            <p class="card-text mb-1">
+                                <strong>Director:</strong> @movie.Director
+                            </p>
+
+                            <p class="card-text mb-3">
+                                <strong>Release Date:</strong> @movie.ReleaseDate
+                            </p>
+
+                            <div class="mt-auto d-flex flex-wrap gap-2">
+                                <button class="btn btn-primary btn-sm" @onclick="() => GoToDetails(movie.Id)">
+                                    View Details
+                                </button>
+
+                                @if (isAuthenticated && !movie.IsInUserWatchlist)
+                                {
+                                    <button class="btn btn-outline-warning btn-sm" @onclick="() => AddToWatchlist(movie.Id)">
+                                        Add to Watchlist
+                                    </button>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    
+    @if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <div class="alert alert-danger alert-dismissible fade show mt-3" role="alert">
+            @errorMessage
+            <button type="button" class="btn-close" @onclick="() => errorMessage = null"></button>
+        </div>
+    }
+</div>
+
+@code {
+    private List<AllMoviesIndexViewModel> movies = new();
+    private bool isLoading = true;
+    private bool isAuthenticated;
+    private string? errorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadMovies();
+        await CheckAuthStatus();
+    }
+
+    private async Task LoadMovies()
+    {
+        try
+        {
+            isLoading = true;
+            var userId = await GetUserId();
+            movies = (await MovieService.GetAllMoviesOrderedByTitleAsync(userId)).ToList();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = "Error loading movies.";
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task CheckAuthStatus()
+    {
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        isAuthenticated = authState.User.Identity?.IsAuthenticated ?? false;
+        StateHasChanged();
+    }
+
+    private async Task<string?> GetUserId()
+    {
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+        return user?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+    }
+
+    private void GoToDetails(Guid id)
+    {
+        Navigation.NavigateTo($"/movies/details/{id}");
+    }
+
+    private void GoToCreate()
+    {
+        Navigation.NavigateTo("/movies/create");
+    }
+
+    private void AddToWatchlist(Guid id)
+    {
+        Navigation.NavigateTo($"/watchlist/add/{id}");
+    }
+}
