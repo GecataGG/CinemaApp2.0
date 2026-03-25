@@ -1,6 +1,7 @@
 ﻿namespace CinemaApp.Core.ViewModels.Movie.WebMovie
 {
     using System.ComponentModel.DataAnnotations;
+    using CinemaApp.Core.DTOs.Movie;
 
     public class MovieFormModel
     {
@@ -32,5 +33,6 @@
         [Url(ErrorMessage = "Please enter a valid image URL.")]
         [MaxLength(2048, ErrorMessage = "Image URL cannot be longer than 2048 characters.")]
         public string? ImageUrl { get; set; }
+
     }
 }

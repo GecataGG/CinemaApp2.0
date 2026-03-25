@@ -1,0 +1,60 @@
+﻿@page "/Movies/Details/{id:guid}"
+@model Cinema.App.RazorPages.Pages.Movies.DetailsModel
+@{
+    ViewData["Title"] = "Movie Details";
+}
+
+<div class="container mt-5">
+    <div class="row g-4">
+        <div class="col-md-4">
+            <img src="@Model.Movie?.ImageUrl"
+                 class="img-fluid rounded shadow"
+                 alt="@Model.Movie?.Title"
+                 style="width: 100%; max-height: 550px; object-fit: cover;">
+        </div>
+
+        <div class="col-md-8">
+            <h2 class="fw-bold mb-4">@Model.Movie?.Title</h2>
+
+            <p><strong>Genre:</strong> @Model.Movie?.Genre</p>
+            <p><strong>Director:</strong> @Model.Movie?.Director</p>
+            <p><strong>Release Date:</strong> @Model.Movie?.ReleaseDate</p>
+            <p><strong>Duration:</strong> @Model.Movie?.Duration min</p>
+
+            <hr />
+
+            <h4>Description</h4>
+            <p>@Model.Movie?.Description</p>
+
+            <div class="mt-4 d-flex flex-wrap gap-2">
+                <a asp-page="/Movies/Index" class="btn btn-secondary">
+                    Back to All Movies
+                </a>
+
+                @if (User?.Identity?.IsAuthenticated == true)
+                {
+                    @if (Model.Movie != null && !Model.Movie.IsInUserWatchlist)
+                    {
+                        <a asp-page="/Watchlist/Add"
+                               asp-route-id="@Model.Movie.Id"
+                               class="btn btn-warning">
+                            Add to Watchlist
+                        </a>
+                    }
+
+                    <a asp-page="/Movies/Edit"
+                           asp-route-id="@Model.Movie?.Id"
+                           class="btn btn-info text-white">
+                        Edit
+                    </a>
+
+                    <a asp-page="/Movies/Delete"
+                           asp-route-id="@Model.Movie?.Id"
+                           class="btn btn-danger">
+                        Delete
+                    </a>
+                }
+            </div>
+        </div>
+    </div>
+</div>

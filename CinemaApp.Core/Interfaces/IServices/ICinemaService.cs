@@ -1,11 +1,10 @@
 ﻿namespace CinemaApp.Core.Interfaces.IServices
 {
-    using CinemaApp.Core.DTOs.Cinema;
+    using CinemaApp.Core.ViewModels.Cinema.WebCinema;
 
     public interface ICinemaService
     {
-        Task<IEnumerable<CinemaAllDto>> GetAllCinemasOrderedByLocationAsync();
-
-        Task<CinemaProgramDetailsDto?> GetCinemaProgramByIdAsync(Guid cinemaId);
+        Task<IEnumerable<CinemaIndexViewModel>> GetAllCinemasOrderedByLocationAsync();
+        Task<CinemaProgramViewModel> GetCinemaProgramByIdAsync(Guid cinemaId);
     }
 }

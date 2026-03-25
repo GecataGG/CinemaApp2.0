@@ -1,0 +1,27 @@
+﻿@page
+@model Cinema.App.RazorPages.Pages.Home.ErrorModel
+@{
+    // Определяме кой изглед да покажем според статус кода
+    var statusCode = HttpContext.Response.StatusCode;
+    
+    if (statusCode == 400)
+    {
+        ViewData["Title"] = "Bad Request";
+        <partial name="Shared/Error/BadRequest" />
+    }
+    else if (statusCode == 404)
+    {
+        ViewData["Title"] = "Not Found";
+        <partial name="Shared/Error/NotFound" />
+    }
+    else if (statusCode == 500)
+    {
+        ViewData["Title"] = "Server Error";
+        <partial name="Shared/Error/ServerError" />
+    }
+    else
+    {
+        ViewData["Title"] = "Error";
+        <partial name="Shared/Error/Error" model="Model.ErrorViewModel" />
+    }
+}

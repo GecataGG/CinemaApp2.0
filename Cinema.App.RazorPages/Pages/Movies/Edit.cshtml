@@ -1,0 +1,70 @@
+﻿@page "/Movies/Edit/{id:guid}"
+@model Cinema.App.RazorPages.Pages.Movies.EditModel
+@{
+    ViewData["Title"] = "Edit Movie";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <h2 class="fw-bold mb-4 text-center">Edit Movie</h2>
+
+            <form method="post" class="card shadow-sm p-4">
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                <div class="mb-3">
+                    <label asp-for="MovieForm.Title" class="form-label"></label>
+                    <input asp-for="MovieForm.Title" class="form-control" />
+                    <span asp-validation-for="MovieForm.Title" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="MovieForm.Genre" class="form-label"></label>
+                    <input asp-for="MovieForm.Genre" class="form-control" />
+                    <span asp-validation-for="MovieForm.Genre" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="MovieForm.Director" class="form-label"></label>
+                    <input asp-for="MovieForm.Director" class="form-control" />
+                    <span asp-validation-for="MovieForm.Director" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="MovieForm.Duration" class="form-label">Duration (minutes)</label>
+                    <input asp-for="MovieForm.Duration" class="form-control" type="number" min="1" max="300" />
+                    <span asp-validation-for="MovieForm.Duration" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="MovieForm.ReleaseDate" class="form-label"></label>
+                    <input asp-for="MovieForm.ReleaseDate" class="form-control" type="date" />
+                    <span asp-validation-for="MovieForm.ReleaseDate" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="MovieForm.Description" class="form-label"></label>
+                    <textarea asp-for="MovieForm.Description" class="form-control" rows="4"></textarea>
+                    <span asp-validation-for="MovieForm.Description" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="MovieForm.ImageUrl" class="form-label"></label>
+                    <input asp-for="MovieForm.ImageUrl" class="form-control" />
+                    <span asp-validation-for="MovieForm.ImageUrl" class="text-danger"></span>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                    <a asp-page="/Movies/Details" asp-route-id="@RouteData.Values["id"]" class="btn btn-secondary">
+                        Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

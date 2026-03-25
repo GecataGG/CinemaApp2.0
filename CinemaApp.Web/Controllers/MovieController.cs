@@ -1,21 +1,17 @@
 ﻿namespace CinemaApp.Web.Controllers
 {
-    using CinemaApp.Core.DTOs.Movie;
     using CinemaApp.Core.Interfaces.IServices;
     using CinemaApp.Core.ViewModels.Movie.WebMovie;
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
-    using Microsoft.Extensions.Logging;
 
     public class MovieController : BaseController
     {
         private readonly IMovieService movieService;
-        private readonly ILogger<MovieController> logger;
 
-        public MovieController(IMovieService movieService, ILogger<MovieController> logger)
+        public MovieController(IMovieService movieService)
         {
             this.movieService = movieService;
-            this.logger = logger;
         }
 
         [AllowAnonymous]
@@ -24,23 +20,10 @@
         {
             string? userId = this.GetUserId();
 
-            IEnumerable<MovieAllDto> movieAllDtos =
+            IEnumerable<AllMoviesIndexViewModel> viewModels =
                 await this.movieService.GetAllMoviesOrderedByTitleAsync(userId);
 
-            IEnumerable<AllMoviesIndexViewModel> allMoviesIndexVms = movieAllDtos
-                .Select(m => new AllMoviesIndexViewModel
-                {
-                    Id = m.Id,
-                    Title = m.Title,
-                    Director = m.Director,
-                    Genre = m.Genre,
-                    ReleaseDate = m.ReleaseDate.ToString("yyyy-MM-dd"),
-                    ImageUrl = m.ImageUrl,
-                    IsInUserWatchlist = m.IsInUserWatchlist
-                })
-                .ToList();
-
-            return this.View(allMoviesIndexVms);
+            return this.View(viewModels);
         }
 
         [HttpGet]
@@ -57,28 +40,7 @@
                 return this.View(formModel);
             }
 
-            try
-            {
-                MovieDetailsDto movieDetailsDto = new MovieDetailsDto
-                {
-                    Title = formModel.Title,
-                    Description = formModel.Description,
-                    Director = formModel.Director,
-                    Genre = formModel.Genre,
-                    Duration = formModel.Duration,
-                    ReleaseDate = formModel.ReleaseDate,
-                    ImageUrl = formModel.ImageUrl
-                };
-
-                await this.movieService.CreateMovieAsync(movieDetailsDto);
-            }
-            catch (Exception ex)
-            {
-                this.logger.LogError(ex, "Error while creating movie");
-                this.TempData["Error"] = "Error while creating movie.";
-
-                return this.RedirectToAction(nameof(Index));
-            }
+            await this.movieService.CreateMovieAsync(formModel);
 
             return this.RedirectToAction(nameof(Index));
         }
@@ -92,28 +54,15 @@
                 return this.BadRequest();
             }
 
-            MovieDetailsDto? movieDetailsDto =
+            MovieDetailsViewModel? viewModel =
                 await this.movieService.GetMovieDetailsByIdAsync(id);
 
-            if (movieDetailsDto == null)
+            if (viewModel == null)
             {
                 return this.NotFound();
             }
 
-            MovieDetailsViewModel movieDetailsVm = new MovieDetailsViewModel
-            {
-                Id = movieDetailsDto.Id,
-                Title = movieDetailsDto.Title,
-                Description = movieDetailsDto.Description,
-                Director = movieDetailsDto.Director,
-                Genre = movieDetailsDto.Genre,
-                Duration = movieDetailsDto.Duration,
-                ReleaseDate = movieDetailsDto.ReleaseDate.ToString("yyyy-MM-dd"),
-                ImageUrl = movieDetailsDto.ImageUrl,
-                IsInUserWatchlist = movieDetailsDto.IsInUserWatchlist
-            };
-
-            return this.View(movieDetailsVm);
+            return this.View(viewModel);
         }
 
         [HttpGet]
@@ -124,26 +73,15 @@
                 return this.BadRequest();
             }
 
-            MovieDetailsDto? movieDetailsDto =
+            MovieFormModel? formModel =
                 await this.movieService.GetMovieFormModelByIdAsync(id);
 
-            if (movieDetailsDto == null)
+            if (formModel == null)
             {
                 return this.NotFound();
             }
 
-            MovieFormModel movieFormModel = new MovieFormModel
-            {
-                Title = movieDetailsDto.Title,
-                Description = movieDetailsDto.Description,
-                Director = movieDetailsDto.Director,
-                Genre = movieDetailsDto.Genre,
-                Duration = movieDetailsDto.Duration,
-                ReleaseDate = movieDetailsDto.ReleaseDate,
-                ImageUrl = movieDetailsDto.ImageUrl
-            };
-
-            return this.View(movieFormModel);
+            return this.View(formModel);
         }
 
         [HttpPost]
@@ -159,28 +97,7 @@
                 return this.View(formModel);
             }
 
-            try
-            {
-                MovieDetailsDto movieDetailsDto = new MovieDetailsDto
-                {
-                    Title = formModel.Title,
-                    Description = formModel.Description,
-                    Director = formModel.Director,
-                    Genre = formModel.Genre,
-                    Duration = formModel.Duration,
-                    ReleaseDate = formModel.ReleaseDate,
-                    ImageUrl = formModel.ImageUrl
-                };
-
-                await this.movieService.EditMovieAsync(id, movieDetailsDto);
-            }
-            catch (Exception ex)
-            {
-                this.logger.LogError(ex, "Error while editing movie");
-                this.TempData["Error"] = "Error while editing movie.";
-
-                return this.RedirectToAction(nameof(Index));
-            }
+            await this.movieService.EditMovieAsync(id, formModel);
 
             return this.RedirectToAction(nameof(Details), new { id });
         }
@@ -193,22 +110,22 @@
                 return this.BadRequest();
             }
 
-            MovieDetailsDto? movieDetailsDto =
+            MovieDetailsViewModel? movieDetailsVm =
                 await this.movieService.GetMovieDetailsByIdAsync(id);
 
-            if (movieDetailsDto == null)
+            if (movieDetailsVm == null)
             {
                 return this.NotFound();
             }
 
-            MovieDeleteViewModel movieDeleteVm = new MovieDeleteViewModel
+            MovieDeleteViewModel viewModel = new MovieDeleteViewModel
             {
-                Id = movieDetailsDto.Id,
-                Title = movieDetailsDto.Title,
-                ImageUrl = movieDetailsDto.ImageUrl
+                Id = movieDetailsVm.Id,
+                Title = movieDetailsVm.Title,
+                ImageUrl = movieDetailsVm.ImageUrl
             };
 
-            return this.View(movieDeleteVm);
+            return this.View(viewModel);
         }
 
         [HttpPost]
@@ -219,17 +136,7 @@
                 return this.BadRequest();
             }
 
-            try
-            {
-                await this.movieService.SoftDeleteMovieAsync(id);
-            }
-            catch (Exception ex)
-            {
-                this.logger.LogError(ex, "Error while deleting movie");
-                this.TempData["Error"] = "Error while deleting movie.";
-
-                return this.RedirectToAction(nameof(Index));
-            }
+            await this.movieService.SoftDeleteMovieAsync(id);
 
             return this.RedirectToAction(nameof(Index));
         }

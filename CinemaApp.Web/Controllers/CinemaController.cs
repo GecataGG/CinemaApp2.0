@@ -1,4 +1,5 @@
-﻿namespace CinemaApp.Web.Controllers
+﻿
+namespace CinemaApp.Web.Controllers
 {
     using CinemaApp.Core.DTOs.Cinema;
     using CinemaApp.Core.Interfaces.IServices;
@@ -19,48 +20,40 @@
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            IEnumerable<CinemaAllDto> cinemaAllDtos =
+            IEnumerable<CinemaIndexViewModel> viewModels =
                 await this.cinemaService.GetAllCinemasOrderedByLocationAsync();
 
-            IEnumerable<CinemaIndexViewModel> cinemaIndexViewModels = cinemaAllDtos
-                .Select(c => new CinemaIndexViewModel
-                {
-                    Id = c.Id,
-                    Name = c.Name,
-                    Location = c.Location,
-                });
-
-            return this.View(cinemaIndexViewModels);
+            return this.View(viewModels);
         }
 
         [AllowAnonymous]
         [HttpGet]
         public async Task<IActionResult> Program([FromRoute(Name = "id")] Guid cinemaId)
         {
-            CinemaProgramDetailsDto? cinemaProgramDetailsDto =
+            CinemaProgramViewModel? viewModel =
                 await this.cinemaService.GetCinemaProgramByIdAsync(cinemaId);
 
-            if (cinemaProgramDetailsDto == null)
+            if (viewModel == null)
             {
                 return this.NotFound();
             }
 
-            CinemaProgramViewModel cinemaProgramViewModel = new CinemaProgramViewModel
-            {
-                Id = cinemaProgramDetailsDto.Id,
-                Name = cinemaProgramDetailsDto.Name,
-                ProjectionMovies = cinemaProgramDetailsDto.ProjectionMovies
-                    .Select(m => new CinemaProgramMoviesViewModel
-                    {
-                        Id = m.Id,
-                        Title = m.Title,
-                        Director = m.Director,
-                        ImageUrl = m.ImageUrl
-                    })
-                    .ToList()
-            };
+            return this.View(viewModel);
 
-            return this.View(cinemaProgramViewModel);
+            //CinemaProgramViewModel cinemaProgramViewModel = new CinemaProgramViewModel
+            //{
+            //    Id = cinemaProgramDetailsDto.Id,
+            //    Name = cinemaProgramDetailsDto.Name,
+            //    ProjectionMovies = cinemaProgramDetailsDto.ProjectionMovies
+            //        .Select(m => new CinemaProgramMoviesViewModel
+            //        {
+            //            Id = m.Id,
+            //            Title = m.Title,
+            //            Director = m.Director,
+            //            ImageUrl = m.ImageUrl
+            //        })
+            //        .ToList()
+            //};
         }
     }
 }

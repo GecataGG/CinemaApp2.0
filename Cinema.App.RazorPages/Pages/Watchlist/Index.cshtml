@@ -1,0 +1,66 @@
+﻿@page
+@model Cinema.App.RazorPages.Pages.Watchlist.IndexModel
+@{
+    ViewData["Title"] = "My Watchlist";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="fw-bold">My Watchlist</h1>
+
+        <a asp-page="/Movies/Index" class="btn btn-secondary">
+            Back to Movies
+        </a>
+    </div>
+
+    @if (!Model.WatchlistMovies.Any())
+    {
+        <div class="alert alert-info">
+            Your watchlist is empty.
+        </div>
+    }
+    else
+    {
+        <div class="row g-4">
+            @foreach (var movie in Model.WatchlistMovies)
+            {
+                <div class="col-md-6 col-lg-4">
+                    <div class="card h-100 shadow-sm">
+                        <img src="@movie.ImageUrl"
+                             class="card-img-top"
+                             alt="@movie.Title"
+                             style="height: 420px; object-fit: cover;" />
+
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="card-title fw-bold">@movie.Title</h5>
+
+                            <p class="card-text mb-1">
+                                <strong>Genre:</strong> @movie.Genre
+                            </p>
+
+                            <p class="card-text mb-3">
+                                <strong>Release Date:</strong> @movie.ReleaseDate
+                            </p>
+
+                            <div class="mt-auto d-flex gap-2 flex-wrap">
+                                <a asp-page="/Movies/Details"
+                                       asp-route-id="@movie.MovieId"
+                                       class="btn btn-primary btn-sm">
+                                    View Details
+                                </a>
+
+                                <!-- Променено от POST на GET с линк -->
+                                <a asp-page="/Watchlist/Remove"
+                                       asp-route-id="@movie.MovieId"
+                                       class="btn btn-danger btn-sm"
+                                       onclick="return confirm('Are you sure you want to remove this movie from your watchlist?');">
+                                    Remove
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>

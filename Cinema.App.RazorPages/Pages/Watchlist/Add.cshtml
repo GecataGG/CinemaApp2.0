@@ -1,0 +1,22 @@
+﻿@page
+@model Cinema.App.RazorPages.Pages.Watchlist.AddModel
+@{
+    ViewData["Title"] = "Add to Watchlist";
+}
+
+<div class="container mt-4 text-center">
+    <div class="card bg-dark text-light shadow-lg p-5 rounded">
+        <h2 class="fw-bold mb-3">Adding to Watchlist...</h2>
+        <p>Please wait while we add the movie to your watchlist.</p>
+        <div class="spinner-border text-warning" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Автоматично пренасочване след 1 секунди
+    setTimeout(function() {
+        window.location.href = '/Watchlist/Index';
+    }, 1000);
+</script>

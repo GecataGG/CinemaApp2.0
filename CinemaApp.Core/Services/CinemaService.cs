@@ -1,7 +1,7 @@
 ﻿namespace CinemaApp.Core.Services
 {
-    using CinemaApp.Core.DTOs.Cinema;
     using CinemaApp.Core.Interfaces.IServices;
+    using CinemaApp.Core.ViewModels.Cinema.WebCinema;
     using CinemaApp.Data.Models;
     using CinemaApp.Data.Repositories.Contracts;
 
@@ -14,7 +14,7 @@
             this.cinemaRepository = cinemaRepository;
         }
 
-        public async Task<IEnumerable<CinemaAllDto>> GetAllCinemasOrderedByLocationAsync()
+        public async Task<IEnumerable<CinemaIndexViewModel>> GetAllCinemasOrderedByLocationAsync()
         {
             IEnumerable<Cinema> allCinemas = (await cinemaRepository
                 .GetAllCinemas(
@@ -28,19 +28,16 @@
                 .OrderBy(c => c.Location)
                 .ToArray();
 
-            IEnumerable<CinemaAllDto> cinemaDtos = allCinemas
-                .Select(c => new CinemaAllDto
-                {
-                    Id = c.Id,
-                    Name = c.Name,
-                    Location = c.Location
-                })
-                .ToArray();
-
-            return cinemaDtos;
+            // Директно мапване към ViewModel
+            return allCinemas.Select(c => new CinemaIndexViewModel
+            {
+                Id = c.Id,
+                Name = c.Name,
+                Location = c.Location
+            }).ToList();
         }
 
-        public async Task<CinemaProgramDetailsDto?> GetCinemaProgramByIdAsync(Guid cinemaId)
+        public async Task<CinemaProgramViewModel?> GetCinemaProgramByIdAsync(Guid cinemaId)
         {
             Cinema? cinema = await cinemaRepository
                 .GetCinemaByIdIncludeMovies(cinemaId);
@@ -50,7 +47,8 @@
                 return null;
             }
 
-            CinemaProgramDetailsDto cinemaProgramDto = new CinemaProgramDetailsDto
+            // Директно създаване на ViewModel в Service-а
+            CinemaProgramViewModel viewModel = new CinemaProgramViewModel
             {
                 Id = cinema.Id,
                 Name = cinema.Name,
@@ -58,15 +56,17 @@
                     .Select(p => p.Movie)
                     .Where(m => m != null)
                     .GroupBy(m => m.Id)
-                    .Select(g => new CinemaProgramMovieDto
+                    .Select(g => new CinemaProgramMoviesViewModel
                     {
                         Id = g.First().Id,
-                        Title = g.First().Title
+                        Title = g.First().Title,
+                        Director = g.First().Director,
+                        ImageUrl = g.First().ImageUrl ?? string.Empty
                     })
                     .ToList()
             };
 
-            return cinemaProgramDto;
+            return viewModel;
         }
     }
 }

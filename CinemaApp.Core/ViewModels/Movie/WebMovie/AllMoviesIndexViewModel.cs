@@ -1,5 +1,7 @@
 ﻿namespace CinemaApp.Core.ViewModels.Movie.WebMovie
 {
+    using CinemaApp.Core.DTOs.Movie;
+
     public class AllMoviesIndexViewModel
     {
         public Guid Id { get; set; }
@@ -9,5 +11,6 @@
         public string Director { get; set; } = null!;
         public string? ImageUrl { get; set; }
         public bool IsInUserWatchlist { get; set; }
+
     }
 }

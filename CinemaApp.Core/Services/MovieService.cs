@@ -2,9 +2,9 @@
 {
     using CinemaApp.Core.DTOs.Movie;
     using CinemaApp.Core.Interfaces.IServices;
+    using CinemaApp.Core.ViewModels.Movie.WebMovie;
     using CinemaApp.Data.Repositories.Contracts;
-
-    using Data.Models;
+    using CinemaApp.Data.Models;
 
     public class MovieService : IMovieService
     {
@@ -12,13 +12,14 @@
         private readonly IWatchlistRepository watchlistRepository;
 
         public const string DefaultImageUrl = "~/images/def-img.png";
+
         public MovieService(IMovieRepository movieRepository, IWatchlistRepository watchlistRepository)
         {
             this.movieRepository = movieRepository;
             this.watchlistRepository = watchlistRepository;
         }
 
-        public async Task<IEnumerable<MovieAllDto>> GetAllMoviesOrderedByTitleAsync(string? userId = null)
+        public async Task<IEnumerable<AllMoviesIndexViewModel>> GetAllMoviesOrderedByTitleAsync(string? userId = null)
         {
             IEnumerable<Movie> allMoviesDb = await movieRepository
                 .GetAllMoviesNoTrackingWithProjectionAsync(m => new Movie()
@@ -35,6 +36,7 @@
                 .GetAllUserMoviesAsync(um => um.UserId == userId))
                 .ToHashSet();
 
+            // Първо създаваме DTO-та за вътрешна обработка
             IEnumerable<MovieAllDto> allMoviesDtos = allMoviesDb
                 .Select(m => new MovieAllDto
                 {
@@ -60,23 +62,33 @@
                 }
             }
 
-            return allMoviesDtos;
+            // Мапваме DTO-та към ViewModel-и
+            return allMoviesDtos.Select(dto => new AllMoviesIndexViewModel
+            {
+                Id = dto.Id,
+                Title = dto.Title,
+                Genre = dto.Genre,
+                ReleaseDate = dto.ReleaseDate.ToString("yyyy-MM-dd"),
+                Director = dto.Director,
+                ImageUrl = dto.ImageUrl,
+                IsInUserWatchlist = dto.IsInUserWatchlist
+            }).ToList();
         }
 
-        public async Task CreateMovieAsync(MovieDetailsDto movieDetailsDto)
+        public async Task CreateMovieAsync(MovieFormModel formModel)
         {
             Movie newMovie = new Movie
             {
                 Id = Guid.NewGuid(),
-                Title = movieDetailsDto.Title,
-                Genre = movieDetailsDto.Genre,
-                ReleaseDate = movieDetailsDto.ReleaseDate,
-                Description = movieDetailsDto.Description,
-                Duration = movieDetailsDto.Duration,
-                Director = movieDetailsDto.Director,
-                ImageUrl = string.IsNullOrWhiteSpace(movieDetailsDto.ImageUrl)
+                Title = formModel.Title,
+                Genre = formModel.Genre,
+                ReleaseDate = formModel.ReleaseDate,
+                Description = formModel.Description,
+                Duration = formModel.Duration,
+                Director = formModel.Director,
+                ImageUrl = string.IsNullOrWhiteSpace(formModel.ImageUrl)
                     ? DefaultImageUrl
-                    : movieDetailsDto.ImageUrl
+                    : formModel.ImageUrl
             };
 
             bool successAdd = await movieRepository.AddMovieAsync(newMovie);
@@ -86,7 +98,7 @@
             }
         }
 
-        public async Task<MovieDetailsDto?> GetMovieDetailsByIdAsync(Guid id)
+        public async Task<MovieDetailsViewModel?> GetMovieDetailsByIdAsync(Guid id)
         {
             Movie? movieDb = await movieRepository
                 .GetMovieByIdAsync(id);
@@ -96,20 +108,21 @@
                 return null;
             }
 
-            return new MovieDetailsDto
+            return new MovieDetailsViewModel
             {
                 Id = movieDb.Id,
                 Title = movieDb.Title,
                 Genre = movieDb.Genre,
-                ReleaseDate = movieDb.ReleaseDate,
+                ReleaseDate = movieDb.ReleaseDate.ToString("yyyy-MM-dd"),
+                Director = movieDb.Director,
                 Description = movieDb.Description,
                 Duration = movieDb.Duration,
-                Director = movieDb.Director,
-                ImageUrl = movieDb.ImageUrl ?? DefaultImageUrl
+                ImageUrl = movieDb.ImageUrl ?? DefaultImageUrl,
+                IsInUserWatchlist = false // This will be set separately if needed
             };
         }
 
-        public async Task<MovieDetailsDto?> GetMovieFormModelByIdAsync(Guid id)
+        public async Task<MovieFormModel?> GetMovieFormModelByIdAsync(Guid id)
         {
             Movie? movieDb = await movieRepository
                 .GetMovieByIdAsync(id);
@@ -119,9 +132,8 @@
                 return null;
             }
 
-            return new MovieDetailsDto
+            return new MovieFormModel
             {
-                Id = movieDb.Id,
                 Title = movieDb.Title,
                 Genre = movieDb.Genre,
                 ReleaseDate = movieDb.ReleaseDate,
@@ -137,7 +149,7 @@
             return await movieRepository.ExistsByIdAsync(id);
         }
 
-        public async Task EditMovieAsync(Guid id, MovieDetailsDto movieDetailsDto)
+        public async Task EditMovieAsync(Guid id, MovieFormModel formModel)
         {
             Movie? movieDb = await movieRepository
                 .GetMovieByIdAsync(id);
@@ -147,15 +159,15 @@
                 throw new InvalidOperationException("Movie not found.");
             }
 
-            movieDb.Title = movieDetailsDto.Title;
-            movieDb.Genre = movieDetailsDto.Genre;
-            movieDb.ReleaseDate = movieDetailsDto.ReleaseDate;
-            movieDb.Description = movieDetailsDto.Description;
-            movieDb.Duration = movieDetailsDto.Duration;
-            movieDb.Director = movieDetailsDto.Director;
-            movieDb.ImageUrl = string.IsNullOrWhiteSpace(movieDetailsDto.ImageUrl)
+            movieDb.Title = formModel.Title;
+            movieDb.Genre = formModel.Genre;
+            movieDb.ReleaseDate = formModel.ReleaseDate;
+            movieDb.Description = formModel.Description;
+            movieDb.Duration = formModel.Duration;
+            movieDb.Director = formModel.Director;
+            movieDb.ImageUrl = string.IsNullOrWhiteSpace(formModel.ImageUrl)
                 ? DefaultImageUrl
-                : movieDetailsDto.ImageUrl;
+                : formModel.ImageUrl;
 
             bool editSuccess = await movieRepository.EditMovieAsync(movieDb);
             if (!editSuccess)

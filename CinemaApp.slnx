@@ -1,4 +1,5 @@
 <Solution>
+  <Project Path="Cinema.App.RazorPages/Cinema.App.RazorPages.csproj" Id="8b0e4293-ec47-403d-b669-24c3800286c0" />
   <Project Path="D:/Desktop/PS/CinemaApp/CinemaApp.Core/CinemaApp.Core.csproj" />
   <Project Path="D:/Desktop/PS/CinemaApp/CinemaApp.Data/CinemaApp.Data.csproj" />
   <Project Path="D:/Desktop/PS/CinemaApp/CinemaApp.Web/CinemaApp.Web.csproj" Id="b39d748a-77c2-41d1-aa95-995cfdae9ac7" />

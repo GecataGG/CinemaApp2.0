@@ -1,0 +1,59 @@
+﻿@page
+@model Cinema.App.RazorPages.Pages.Home.IndexModel
+@{
+    ViewData["Title"] = "Home";
+}
+
+<div class="container mt-4">
+    <div class="p-5 mb-4 rounded-3 text-white"
+         style="background: linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.55)),
+        url('/images/cinema-panoramic-megeve.jpg') center/cover no-repeat;
+        min-height: 420px;">
+        <div class="container-fluid py-5 text-center">
+            <h1 class="display-4 fw-bold">Welcome to CinemaApp</h1>
+            <p class="fs-5 mt-3">
+                Browse movies, explore cinemas, and save your favorites to your watchlist.
+            </p>
+
+            <div class="mt-4 d-flex justify-content-center gap-2 flex-wrap">
+                <a asp-page="/Movies/Index" class="btn btn-warning btn-lg">
+                    Browse Movies
+                </a>
+
+                <a asp-page="/Cinemas/Index" class="btn btn-outline-light btn-lg">
+                    Explore Cinemas
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4 mt-2">
+        <div class="col-md-6">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <h4 class="fw-bold">Movies</h4>
+                    <p class="mb-3">
+                        Check the latest movies and open details for each title.
+                    </p>
+                    <a asp-page="/Movies/Index" class="btn btn-primary">
+                        Go to Movies
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <h4 class="fw-bold">Cinemas</h4>
+                    <p class="mb-3">
+                        Explore available cinemas and see what is playing there.
+                    </p>
+                    <a asp-page="/Cinemas/Index" class="btn btn-primary">
+                        Go to Cinemas
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
