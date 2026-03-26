@@ -6,14 +6,14 @@
 
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="fw-bold">Program - @Model.Name</h1>
+        <h1 class="fw-bold">Program - @Model.Cinema?.Name</h1>
 
         <a asp-controller="Cinema" asp-action="Index" class="btn btn-secondary">
             Back to Cinemas
         </a>
     </div>
 
-    @if (!Model.ProjectionMovies.Any())
+    @if (Model.Cinema == null || !Model.Cinema.ProjectionMovies.Any())
     {
         <div class="alert alert-info">
             No movies available for this cinema.
@@ -22,13 +22,13 @@
     else
     {
         <div class="row g-4">
-            @foreach (var movie in Model.ProjectionMovies)
+            @foreach (var movie in Model.Cinema.ProjectionMovies)
             {
                 <div class="col-md-6 col-lg-4">
                     <div class="card h-100 shadow-sm">
                         <img src="@(string.IsNullOrWhiteSpace(movie.ImageUrl)
-                                 ? "https://m.media-amazon.com/images/M/MV5BMjAxMzY3NjcxNF5BMl5BanBnXkFtZTcwNTI5OTM0Mw@@._V1_.jpg"
-                                 : movie.ImageUrl)"
+                                                                                      ? "https://m.media-amazon.com/images/M/MV5BMjAxMzY3NjcxNF5BMl5BanBnXkFtZTcwNTI5OTM0Mw@@._V1_.jpg"
+                                                                                      : movie.ImageUrl)"
                              class="card-img-top"
                              alt="@movie.Title"
                              style="height: 380px; object-fit: cover;" />
@@ -42,18 +42,18 @@
 
                             <div class="mt-auto d-flex flex-wrap gap-2">
                                 <a asp-controller="Movie"
-                                   asp-action="Details"
-                                   asp-route-id="@movie.Id"
-                                   class="btn btn-primary btn-sm">
+                                       asp-action="Details"
+                                       asp-route-id="@movie.Id"
+                                       class="btn btn-primary btn-sm">
                                     View Details
                                 </a>
 
                                 @if (User?.Identity?.IsAuthenticated == true)
                                 {
                                     <a asp-controller="Watchlist"
-                                       asp-action="Add"
-                                       asp-route-id="@movie.Id"
-                                       class="btn btn-outline-warning btn-sm">
+                                           asp-action="Add"
+                                           asp-route-id="@movie.Id"
+                                           class="btn btn-outline-warning btn-sm">
                                         Add to Watchlist
                                     </a>
                                 }

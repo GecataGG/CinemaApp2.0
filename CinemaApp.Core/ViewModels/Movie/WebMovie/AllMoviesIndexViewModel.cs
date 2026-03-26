@@ -1,7 +1,5 @@
 ﻿namespace CinemaApp.Core.ViewModels.Movie.WebMovie
 {
-    using CinemaApp.Core.DTOs.Movie;
-
     public class AllMoviesIndexViewModel
     {
         public Guid Id { get; set; }

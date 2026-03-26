@@ -1,5 +1,4 @@
-﻿
-namespace CinemaApp.Web.Controllers
+﻿namespace CinemaApp.Web.Controllers
 {
     using CinemaApp.Core.DTOs.Cinema;
     using CinemaApp.Core.Interfaces.IServices;
@@ -20,40 +19,42 @@ namespace CinemaApp.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            IEnumerable<CinemaIndexViewModel> viewModels =
+            // 1. Взимаме DTOs от сървиса
+            IEnumerable<CinemaAllDto> cinemaDtos =
                 await this.cinemaService.GetAllCinemasOrderedByLocationAsync();
 
-            return this.View(viewModels);
+            // 2. Изграждаме ViewModel от DTOs
+            CinemaIndexViewModel viewModel = new CinemaIndexViewModel
+            {
+                Cinemas = cinemaDtos
+            };
+
+            // 3. Връщаме ViewModel-а на View-то
+            return this.View(viewModel);
         }
 
         [AllowAnonymous]
         [HttpGet]
         public async Task<IActionResult> Program([FromRoute(Name = "id")] Guid cinemaId)
         {
-            CinemaProgramViewModel? viewModel =
+            // 1. Взимаме DTO от сървиса
+            CinemaProgramDetailsDto? cinemaDto =
                 await this.cinemaService.GetCinemaProgramByIdAsync(cinemaId);
 
-            if (viewModel == null)
+            if (cinemaDto == null)
             {
                 return this.NotFound();
             }
 
-            return this.View(viewModel);
+            // 2. Изграждаме ViewModel от DTO
+            CinemaProgramViewModel viewModel = new CinemaProgramViewModel
+            {
+                Cinema = cinemaDto
+            };
 
-            //CinemaProgramViewModel cinemaProgramViewModel = new CinemaProgramViewModel
-            //{
-            //    Id = cinemaProgramDetailsDto.Id,
-            //    Name = cinemaProgramDetailsDto.Name,
-            //    ProjectionMovies = cinemaProgramDetailsDto.ProjectionMovies
-            //        .Select(m => new CinemaProgramMoviesViewModel
-            //        {
-            //            Id = m.Id,
-            //            Title = m.Title,
-            //            Director = m.Director,
-            //            ImageUrl = m.ImageUrl
-            //        })
-            //        .ToList()
-            //};
+            // 3. Връщаме ViewModel-а на View-то
+            return this.View(viewModel);
         }
+
     }
 }

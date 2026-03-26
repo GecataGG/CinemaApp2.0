@@ -7,14 +7,22 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\CinemaApp.Data\CinemaApp.Data.csproj" />
+    <Compile Remove="ViewModels\IndentityWpf\**" />
+    <Compile Remove="ViewModels\Movie\WpfMovie\**" />
+    <Compile Remove="ViewModels\Ticket\WpfTicket\**" />
+    <Compile Remove="ViewModels\Watchlist\WpfWatchlist\**" />
+    <EmbeddedResource Remove="ViewModels\IndentityWpf\**" />
+    <EmbeddedResource Remove="ViewModels\Movie\WpfMovie\**" />
+    <EmbeddedResource Remove="ViewModels\Ticket\WpfTicket\**" />
+    <EmbeddedResource Remove="ViewModels\Watchlist\WpfWatchlist\**" />
+    <None Remove="ViewModels\IndentityWpf\**" />
+    <None Remove="ViewModels\Movie\WpfMovie\**" />
+    <None Remove="ViewModels\Ticket\WpfTicket\**" />
+    <None Remove="ViewModels\Watchlist\WpfWatchlist\**" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="ViewModels\IndentityWpf\" />
-    <Folder Include="ViewModels\Movie\WpfMovie\" />
-    <Folder Include="ViewModels\Ticket\WpfTicket\" />
-    <Folder Include="ViewModels\Watchlist\WpfWatchlist\" />
+    <ProjectReference Include="..\CinemaApp.Data\CinemaApp.Data.csproj" />
   </ItemGroup>
 
 </Project>

@@ -4,9 +4,6 @@
 
     public class CinemaIndexViewModel
     {
-        public Guid Id { get; set; }
-        public string Name { get; set; } = null!;
-        public string Location { get; set; } = null!;
-
+        public IEnumerable<CinemaAllDto> Cinemas { get; set; } = new List<CinemaAllDto>();
     }
 }

@@ -1,4 +1,4 @@
-﻿@model IEnumerable<CinemaApp.Core.ViewModels.Cinema.WebCinema.CinemaIndexViewModel>
+﻿@model CinemaApp.Core.ViewModels.Cinema.WebCinema.CinemaIndexViewModel
 
 @{
     ViewData["Title"] = "Explore Cinemas";
@@ -13,7 +13,7 @@
         </a>
     </div>
 
-    @if (!Model.Any())
+    @if (!Model.Cinemas.Any())
     {
         <div class="alert alert-info">
             No cinemas available.
@@ -22,13 +22,13 @@
     else
     {
         <div class="row g-4">
-            @foreach (var cinema in Model)
+            @foreach (var cinema in Model.Cinemas)
             {
                 <div class="col-md-6 col-lg-4">
                     <div class="card h-100 shadow-sm">
                         <img src="@(cinema.Location == "Sofia" 
-                                 ? "https://images.unsplash.com/photo-1517602302552-471fe67acf66"
-                                 : "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba")"
+                                                                                      ? "https://images.unsplash.com/photo-1517602302552-471fe67acf66"
+                                                                                      : "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba")"
                              class="card-img-top"
                              alt="@cinema.Name"
                              style="height: 220px; object-fit: cover;" />
@@ -42,9 +42,9 @@
 
                             <div class="mt-auto">
                                 <a asp-controller="Cinema"
-                                   asp-action="Program"
-                                   asp-route-id="@cinema.Id"
-                                   class="btn btn-primary">
+                                       asp-action="Program"
+                                       asp-route-id="@cinema.Id"
+                                       class="btn btn-primary">
                                     View Program
                                 </a>
                             </div>

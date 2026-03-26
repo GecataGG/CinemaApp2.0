@@ -1,8 +1,7 @@
 ﻿namespace CinemaApp.Core.ViewModels.Movie.WebMovie
 {
     using System.ComponentModel.DataAnnotations;
-    using CinemaApp.Core.DTOs.Movie;
-
+    
     public class MovieFormModel
     {
         [Required(ErrorMessage = "Title is required.")]
