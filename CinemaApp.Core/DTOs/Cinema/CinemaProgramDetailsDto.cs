@@ -9,3 +9,5 @@
         public IEnumerable<CinemaProgramMovieDto> ProjectionMovies { get; set; } = new List<CinemaProgramMovieDto>();
     }
 }
+
+

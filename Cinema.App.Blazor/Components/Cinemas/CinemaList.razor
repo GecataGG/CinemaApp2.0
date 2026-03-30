@@ -1,5 +1,6 @@
 ﻿@page "/cinemas"
 @attribute [AllowAnonymous]
+@rendermode InteractiveServer
 
 @using CinemaApp.Core.DTOs.Cinema
 @using CinemaApp.Core.Interfaces.IServices
@@ -43,8 +44,8 @@
                 <div class="col-md-6 col-lg-4">
                     <div class="card h-100 shadow-sm">
                         <img src="@(cinema.Location == "Sofia" 
-                                                                                   ? "https://images.unsplash.com/photo-1517602302552-471fe67acf66"
-                                                                                   : "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba")"
+                                  ? "https://images.unsplash.com/photo-1517602302552-471fe67acf66"
+                                  : "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba")"
                              class="card-img-top"
                              alt="@cinema.Name"
                              style="height: 220px; object-fit: cover;" />

@@ -21,10 +21,10 @@
         public void Dispose()
         {
             Dispose(true);
-            GC.SuppressFinalize(this);
+            GC.SuppressFinalize(this); //garbage collector will not call
         }
 
-        protected void Dispose(bool disposing)
+        protected void Dispose(bool disposing) //free dbcontext resources
         {
             if (!isDisposed)
             {

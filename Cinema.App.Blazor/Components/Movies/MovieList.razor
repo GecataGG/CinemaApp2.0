@@ -1,4 +1,5 @@
 ﻿@page "/movies"
+@rendermode InteractiveServer //works with authentication state in the server-side Blazor app
 @attribute [AllowAnonymous]
 
 @using System.Security.Claims
@@ -6,6 +7,7 @@
 @using CinemaApp.Core.ViewModels.Movie.WebMovie
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.Components.Authorization
+
 @inject IMovieService MovieService
 @inject NavigationManager Navigation
 @inject AuthenticationStateProvider AuthStateProvider

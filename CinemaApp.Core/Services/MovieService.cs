@@ -19,6 +19,84 @@
             this.watchlistRepository = watchlistRepository;
         }
 
+        public async Task<MovieDetailsViewModel?> GetMovieDetailsByIdAsync(Guid id)
+        {
+            Movie? movieDb = await movieRepository
+                .GetMovieByIdAsync(id);
+
+            if (movieDb == null)
+            {
+                return null;
+            }
+
+            return new MovieDetailsViewModel
+            {
+                Id = movieDb.Id,
+                Title = movieDb.Title,
+                Genre = movieDb.Genre,
+                ReleaseDate = movieDb.ReleaseDate.ToString("yyyy-MM-dd"),
+                Director = movieDb.Director,
+                Description = movieDb.Description,
+                Duration = movieDb.Duration,
+                ImageUrl = movieDb.ImageUrl ?? DefaultImageUrl,
+                IsInUserWatchlist = false
+            };
+        }
+
+        public async Task<MovieFormModel?> GetMovieFormModelByIdAsync(Guid id)
+        {
+            Movie? movieDb = await movieRepository
+                .GetMovieByIdAsync(id);
+
+            if (movieDb == null)
+            {
+                return null;
+            }
+
+            return new MovieFormModel
+            {
+                Title = movieDb.Title,
+                Genre = movieDb.Genre,
+                ReleaseDate = movieDb.ReleaseDate,
+                Description = movieDb.Description,
+                Duration = movieDb.Duration,
+                Director = movieDb.Director,
+                ImageUrl = movieDb.ImageUrl ?? DefaultImageUrl
+            };
+        }
+
+        public async Task<bool> ExistsByIdAsync(Guid id)
+        {
+            return await movieRepository.ExistsByIdAsync(id);
+        }
+
+        public async Task EditMovieAsync(Guid id, MovieFormModel formModel)
+        {
+            Movie? movieDb = await movieRepository
+                .GetMovieByIdAsync(id);
+
+            if (movieDb == null)
+            {
+                throw new InvalidOperationException("Movie not found.");
+            }
+
+            movieDb.Title = formModel.Title;
+            movieDb.Genre = formModel.Genre;
+            movieDb.ReleaseDate = formModel.ReleaseDate;
+            movieDb.Description = formModel.Description;
+            movieDb.Duration = formModel.Duration;
+            movieDb.Director = formModel.Director;
+            movieDb.ImageUrl = string.IsNullOrWhiteSpace(formModel.ImageUrl)
+                ? DefaultImageUrl
+                : formModel.ImageUrl;
+
+            bool editSuccess = await movieRepository.EditMovieAsync(movieDb);
+            if (!editSuccess)
+            {
+                throw new Exception("Movie could not be updated.");
+            }
+        }
+
         public async Task<IEnumerable<AllMoviesIndexViewModel>> GetAllMoviesOrderedByTitleAsync(string? userId = null)
         {
             IEnumerable<Movie> allMoviesDb = await movieRepository
@@ -97,84 +175,7 @@
                 throw new Exception("Movie could not be saved.");
             }
         }
-
-        public async Task<MovieDetailsViewModel?> GetMovieDetailsByIdAsync(Guid id)
-        {
-            Movie? movieDb = await movieRepository
-                .GetMovieByIdAsync(id);
-
-            if (movieDb == null)
-            {
-                return null;
-            }
-
-            return new MovieDetailsViewModel
-            {
-                Id = movieDb.Id,
-                Title = movieDb.Title,
-                Genre = movieDb.Genre,
-                ReleaseDate = movieDb.ReleaseDate.ToString("yyyy-MM-dd"),
-                Director = movieDb.Director,
-                Description = movieDb.Description,
-                Duration = movieDb.Duration,
-                ImageUrl = movieDb.ImageUrl ?? DefaultImageUrl,
-                IsInUserWatchlist = false // This will be set separately if needed
-            };
-        }
-
-        public async Task<MovieFormModel?> GetMovieFormModelByIdAsync(Guid id)
-        {
-            Movie? movieDb = await movieRepository
-                .GetMovieByIdAsync(id);
-
-            if (movieDb == null)
-            {
-                return null;
-            }
-
-            return new MovieFormModel
-            {
-                Title = movieDb.Title,
-                Genre = movieDb.Genre,
-                ReleaseDate = movieDb.ReleaseDate,
-                Description = movieDb.Description,
-                Duration = movieDb.Duration,
-                Director = movieDb.Director,
-                ImageUrl = movieDb.ImageUrl ?? DefaultImageUrl
-            };
-        }
-
-        public async Task<bool> ExistsByIdAsync(Guid id)
-        {
-            return await movieRepository.ExistsByIdAsync(id);
-        }
-
-        public async Task EditMovieAsync(Guid id, MovieFormModel formModel)
-        {
-            Movie? movieDb = await movieRepository
-                .GetMovieByIdAsync(id);
-
-            if (movieDb == null)
-            {
-                throw new InvalidOperationException("Movie not found.");
-            }
-
-            movieDb.Title = formModel.Title;
-            movieDb.Genre = formModel.Genre;
-            movieDb.ReleaseDate = formModel.ReleaseDate;
-            movieDb.Description = formModel.Description;
-            movieDb.Duration = formModel.Duration;
-            movieDb.Director = formModel.Director;
-            movieDb.ImageUrl = string.IsNullOrWhiteSpace(formModel.ImageUrl)
-                ? DefaultImageUrl
-                : formModel.ImageUrl;
-
-            bool editSuccess = await movieRepository.EditMovieAsync(movieDb);
-            if (!editSuccess)
-            {
-                throw new Exception("Movie could not be updated.");
-            }
-        }
+        
 
         public async Task SoftDeleteMovieAsync(Guid id)
         {

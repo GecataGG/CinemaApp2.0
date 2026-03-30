@@ -22,7 +22,7 @@ namespace Cinema.App.RazorPages.Pages.Movies
         {
             if (id == Guid.Empty)
             {
-                return BadRequest();
+                return BadRequest();    
             }
 
             Movie = await _movieService.GetMovieDetailsByIdAsync(id);

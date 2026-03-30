@@ -1,10 +1,12 @@
-﻿@page "/cinemas/program/{cinemaId:guid}"
+﻿@page "/cinemas/program/{CinemaId:guid}"
+@rendermode InteractiveServer
 @attribute [AllowAnonymous]
 
 @using CinemaApp.Core.DTOs.Cinema
 @using CinemaApp.Core.Interfaces.IServices
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.Components.Authorization
+
 @inject ICinemaService CinemaService
 @inject NavigationManager Navigation
 @inject AuthenticationStateProvider AuthStateProvider
@@ -13,17 +15,29 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1 class="fw-bold">Program - @cinema?.Name</h1>
 
-        <button class="btn btn-secondary" @onclick="GoToCinemas">
+        <button type="button" class="btn btn-secondary" @onclick="GoToCinemas">
             Back to Cinemas
         </button>
     </div>
 
-    @if (cinema == null)
+    @if (isLoading)
     {
         <div class="text-center">
             <div class="spinner-border text-warning" role="status">
                 <span class="visually-hidden">Loading...</span>
             </div>
+        </div>
+    }
+    else if (!string.IsNullOrWhiteSpace(errorMessage))
+    {
+        <div class="alert alert-danger">
+            @errorMessage
+        </div>
+    }
+    else if (cinema == null)
+    {
+        <div class="alert alert-warning">
+            Cinema not found.
         </div>
     }
     else if (cinema.ProjectionMovies == null || !cinema.ProjectionMovies.Any())
@@ -40,8 +54,8 @@
                 <div class="col-md-6 col-lg-4">
                     <div class="card h-100 shadow-sm">
                         <img src="@(string.IsNullOrWhiteSpace(movie.ImageUrl)
-                                                                                                                                           ? "https://m.media-amazon.com/images/M/MV5BMjAxMzY3NjcxNF5BMl5BanBnXkFtZTcwNTI5OTM0Mw@@._V1_.jpg"
-                                                                                                                                           : movie.ImageUrl)"
+                                    ? "https://m.media-amazon.com/images/M/MV5BMjAxMzY3NjcxNF5BMl5BanBnXkFtZTcwNTI5OTM0Mw@@._V1_.jpg"
+                                    : movie.ImageUrl)"
                              class="card-img-top"
                              alt="@movie.Title"
                              style="height: 380px; object-fit: cover;" />
@@ -54,13 +68,13 @@
                             </p>
 
                             <div class="mt-auto d-flex flex-wrap gap-2">
-                                <button class="btn btn-primary btn-sm" @onclick="() => GoToMovieDetails(movie.Id)">
+                                <button type="button" class="btn btn-primary btn-sm" @onclick="@(() => GoToMovieDetails(movie.Id))">
                                     View Details
                                 </button>
 
                                 @if (isAuthenticated)
                                 {
-                                    <button class="btn btn-outline-warning btn-sm" @onclick="() => AddToWatchlist(movie.Id)">
+                                    <button type="button" class="btn btn-outline-warning btn-sm" @onclick="@(() => AddToWatchlist(movie.Id))">
                                         Add to Watchlist
                                     </button>
                                 }
@@ -74,27 +88,39 @@
 </div>
 
 @code {
-    [Parameter] public Guid CinemaId { get; set; }
+    [Parameter]
+    public Guid CinemaId { get; set; }
 
     private CinemaProgramDetailsDto? cinema;
     private bool isAuthenticated;
+    private bool isLoading = true;
+    private string? errorMessage;
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnParametersSetAsync()
     {
-        await LoadCinemaProgram();
-        await CheckAuthStatus();
+        await LoadData();
     }
 
-    private async Task LoadCinemaProgram()
+    private async Task LoadData()
     {
-        cinema = await CinemaService.GetCinemaProgramByIdAsync(CinemaId);
-        StateHasChanged();
-    }
+        try
+        {
+            isLoading = true;
+            errorMessage = null;
 
-    private async Task CheckAuthStatus()
-    {
-        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
-        isAuthenticated = authState.User.Identity?.IsAuthenticated ?? false;
+            var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+            isAuthenticated = authState.User.Identity?.IsAuthenticated ?? false;
+
+            cinema = await CinemaService.GetCinemaProgramByIdAsync(CinemaId);
+        }
+        catch
+        {
+            errorMessage = "Error loading cinema program.";
+        }
+        finally
+        {
+            isLoading = false;
+        }
     }
 
     private void GoToCinemas()
@@ -109,7 +135,6 @@
 
     private void AddToWatchlist(Guid movieId)
     {
-        // Ще добавим watchlist функционалност по-късно
         Navigation.NavigateTo($"/watchlist/add/{movieId}");
     }
 }

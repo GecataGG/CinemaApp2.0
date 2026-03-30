@@ -13,7 +13,7 @@ namespace CinemaApp.Web
     {
         public static void Main(string[] args)
         {
-            var builder = WebApplication.CreateBuilder(args);
+            var builder = WebApplication.CreateBuilder(args); //configuration
 
             string connectionString = builder.Configuration
                 .GetConnectionString("SqlServer")
@@ -32,7 +32,7 @@ namespace CinemaApp.Web
             builder.Services.AddControllersWithViews();
             builder.Services.AddRazorPages();
 
-            // Repositories
+            // Repositories DI
             builder.Services.AddScoped<IMovieRepository, MovieRepository>();
             builder.Services.AddScoped<ICinemaRepository, CinemaRepository>();
             builder.Services.AddScoped<IWatchlistRepository, WatchlistRepository>();
@@ -40,7 +40,7 @@ namespace CinemaApp.Web
             builder.Services.AddScoped<ITicketRepository, TicketRepository>();
 
 
-            // Services
+            // Services DI
             builder.Services.AddScoped<IMovieService, MovieService>();
             builder.Services.AddScoped<ICinemaService, CinemaService>();
             builder.Services.AddScoped<IWatchlistService, WatchlistService>();

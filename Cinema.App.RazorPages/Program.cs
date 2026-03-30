@@ -34,7 +34,7 @@ namespace Cinema.App.RazorPages
             })
             .AddEntityFrameworkStores<CinemaAppDbContext>();
 
-
+            //behavior of the app
             builder.Services.AddRazorPages(options =>
             {
                 options.Conventions.AddPageRoute("/Home/Index", "");
@@ -44,15 +44,15 @@ namespace Cinema.App.RazorPages
                 options.Conventions.AuthorizePage("/Movies/Delete");
             });
 
-
+           
             builder.Services.ConfigureApplicationCookie(options =>
             {
                 options.LoginPath = "/Identity/Account/Login";
                 options.LogoutPath = "/Identity/Account/Logout";
                 options.AccessDeniedPath = "/Home/Error";
-                options.ReturnUrlParameter = "returnUrl";
+                options.ReturnUrlParameter = "returnUrl"; //after login, redirect to the page the user wanted to access
                 options.ExpireTimeSpan = TimeSpan.FromDays(1);
-                options.SlidingExpiration = true;
+                options.SlidingExpiration = true; //activity extends the expiration time
             });
 
 

@@ -16,10 +16,11 @@ namespace Cinema.App.RazorPages.Pages.Movies
             _movieService = movieService;
         }
 
+        //connect UI with the form model
         [BindProperty]
         public MovieFormModel MovieForm { get; set; } = new();
 
-        public async Task<IActionResult> OnGetAsync([FromRoute] Guid id)
+        public async Task<IActionResult> OnGetAsync([FromRoute] Guid id) //Movies/Edit/3f29c8a2-1234
         {
             if (id == Guid.Empty)
             {
